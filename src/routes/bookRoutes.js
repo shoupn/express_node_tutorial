@@ -1,53 +1,43 @@
+const sql = require('mssql');
 const express = require('express');
-
+const debug = require('debug');
 const bookRouter = express.Router();
 
 function router(nav) {
-  const books = [{
-    title: 'War and Peace',
-    genre: 'Historical Fiction',
-    author: 'Lev Tolstoy',
-    read: false
-  },
-  {
-    title: 'Les Miserables',
-    genre: 'Historical Fiction',
-    author: 'Victor Hugo',
-    read: false
-  },
-  {
-    title: 'The Time Machine',
-    genre: 'Science Fiction',
-    author: 'Jules Verne',
-    read: true
-  },
-  {
-    title: 'Dark World',
-    genre: 'Fantasy',
-    author: 'Henry Kuttner',
-    read: true
-  }
-  ];
-
   bookRouter.route('/')
     .get((req, res) => {
-      res.render('booksListView', {
-        nav,
-        title: 'Library',
-        books
-      });
+      (async function query(){
+        const request = new sql.Request();
+        const { recordset } = await request.query('select * from books');
+        res.render('booksListView', {
+            nav,
+            title: 'Library',
+            books: recordset
+        });
+      }());
     });
 
   bookRouter.route('/:id')
-    .get((req, res) => {
+    .all((req, res, next) => {
       const {
         id
       } = req.params;
+      (async function query(){
+        const request = new sql.Request();
+        const {recordset} = 
+          await request
+          .input('id', sql.Int, id)
+          .query(`select * from books where id = @id`);
+        req.book = recordset[0];
+        next();
+      }());
+    })
+    .get((req, res) => {
       res.render('bookView', {
         nav,
         title: 'Library',
-        book: books[id]
-      });
+        book: req.book
+    });
     });
 
   return bookRouter;

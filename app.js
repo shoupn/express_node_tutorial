@@ -3,20 +3,43 @@ const chalk = require('chalk');
 const debug = require('debug');
 const morgan = require('morgan');
 const path = require('path');
+const sql = require('mssql');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-const nav = [{
-  link: '/books',
-  title: 'Book'
-}, {
-  link: '/authors',
-  title: 'Author'
-}];
+
+const sqlConfig = {
+  user: '****',
+  password: '****',
+  server: 'pluralsightlibraryn.database.windows.net', // You can use 'localhost\\instance' to connect to named instance
+  database: 'PSLibrary',
+  options: {
+    encrypt: true // Use this if you're on Windows Azure
+  }
+};
+
+
+sql.connect(sqlConfig).catch(err => debug(err));
+
+
+const nav = [
+  {
+    link: '/books',
+    title: 'Book'
+  }, {
+    link: '/authors',
+    title: 'Author'
+  }
+];
+
 const bookRouter = require('./src/routes/bookRoutes')(nav);
 
 app.use(morgan('tiny'));
+app.use((req, res, next) => {
+  debug('middleware');
+  next();
+});
 app.use(express.static(path.join(__dirname, '/public/')));
 app.use('/css', express.static(path.join(__dirname, '/node_modules/bootstrap/dist/css/')));
 app.use('/js', express.static(path.join(__dirname, '/node_modules/bootstrap/dist/js/')));
