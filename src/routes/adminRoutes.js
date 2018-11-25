@@ -8,13 +8,15 @@ const books = [
     title: 'War and Peace',
     genre: 'Historical Fiction',
     author: 'Lev Nikolayevich Tolstoy',
-    read: false
+    bookId: 656,
+    read: true
   },
   {
     title: 'Les Misérables',
     genre: 'Historical Fiction',
     author: 'Victor Hugo',
-    read: false
+    bookId: 24280,
+    read: true
   },
   {
     title: 'The Time Machine',
